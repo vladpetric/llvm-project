@@ -914,7 +914,7 @@ public:
   }
 
   void Post(const parser::OmpMapClause &x) {
-    unsigned version{context_.langOptions().OpenMPVersion};
+    llvm::omp::Version version{context_.langOptions().getOpenMP()};
     std::optional<Symbol::Flag> ompFlag;
 
     auto &mods{OmpGetModifiers(x)};
@@ -2135,7 +2135,7 @@ bool OmpAttributeVisitor::Pre(const parser::OpenMPLoopConstruct &x) {
 
 void OmpAttributeVisitor::ResolveSeqLoopIndexInParallelOrTaskConstruct(
     const parser::Name &iv) {
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
   // Find the parallel, teams or task generating construct enclosing the
   // sequential loop.
   auto targetIt{dirContext_.rbegin()};
@@ -2226,7 +2226,7 @@ bool OmpAttributeVisitor::Pre(const parser::DoConstruct &x) {
 void OmpAttributeVisitor::PrivatizeAssociatedLoopIndex(
     const parser::OpenMPLoopConstruct &x) {
   const parser::OmpDirectiveSpecification &spec{x.BeginDir()};
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
 
   auto [depth, _]{
       omp::GetAffectedNestDepthWithReason(spec, version, &context_)};
@@ -2282,7 +2282,7 @@ bool OmpAttributeVisitor::Pre(const parser::OmpGroupprivateDirective &x) {
     device = parser::UnwrapRef<common::OmpDeviceType>(*devClause);
   }
 
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
   llvm::omp::ClauseSet clauses{llvm::omp::Clause::OMPC_device_type};
   for (const parser::OmpArgument &arg : x.v.Arguments().v) {
     if (const parser::OmpObject *object{parser::omp::GetArgumentObject(arg)}) {
@@ -2336,7 +2336,7 @@ bool OmpAttributeVisitor::Pre(const parser::OpenMPCriticalConstruct &x) {
 bool OmpAttributeVisitor::Pre(const parser::OmpDeclareTargetDirective &x) {
   PushContext(x.source, llvm::omp::Directive::OMPD_declare_target);
 
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
   std::map<const Symbol *, WithOmpDeclarative> details;
   std::optional<common::OmpDeviceType> device;
 
@@ -3044,7 +3044,7 @@ static bool SymbolOrEquivalentIsInNamelist(const Symbol &symbol) {
 
 void OmpAttributeVisitor::ResolveOmpDesignator(
     const parser::Designator &designator, Symbol::Flag ompFlag) {
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
   llvm::omp::Directive directive{GetContext().directive};
 
   const auto *name{parser::GetDesignatorNameIfDataRef(designator)};
@@ -3430,7 +3430,7 @@ void OmpAttributeVisitor::CheckObjectIsPrivatizable(
 void OmpAttributeVisitor::AddOmpRequiresToScope(Scope &scope,
     const llvm::omp::ClauseSet &reqs,
     const std::optional<common::OmpMemoryOrderType> &memOrder) {
-  unsigned version{context_.langOptions().OpenMPVersion};
+  llvm::omp::Version version{context_.langOptions().getOpenMP()};
   const Scope &programUnit{omp::GetProgramUnit(scope)};
 
   if (auto *symbol{const_cast<Symbol *>(programUnit.symbol())}) {
